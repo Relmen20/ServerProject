@@ -6,33 +6,34 @@ import java.io.*;
 
 public class UserRepository {
     private final static String ACTUAL_ID_FILE_PATH = "/home/andrew/IdeaProjects/NativeCSR/repo/src/data/Object_0.txt";
-    private static final String FILE_PATH = "/home/andrew/IdeaProjects/NativeCSR/repo/src/data/";
+    public static final String FILE_PATH = "/home/andrew/IdeaProjects/NativeCSR/repo/src/data/";
     private int actualID;
 
     public UserRepository() {
         this.actualID = getActualIDFromFile();
     }
 
-    public void objectToFile(EntityUser obj) {
+    public void createUser(EntityUser obj) {
 
-        actualID++;
-
-        obj.setID(actualID);
+        if(obj.getID() == 0){
+            actualID++;
+            setActualIDToFile(actualID);
+            obj.setID(actualID);
+        }
 
         try {
-            String fullFileName = "Object_" + actualID + ".ser";
+            String fullFileName = "Object_" + obj.getID() + ".ser";
             FileOutputStream fileOut = new FileOutputStream(new File(FILE_PATH, fullFileName));
             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
             objectOut.writeObject(obj);
             objectOut.close();
             System.out.printf("Object %s was saved successfully\n", obj.getName());
-            setActualIDToFile(actualID);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public EntityUser getObject(String filepath) {
+    public EntityUser getUser(String filepath) {
         try {
             FileInputStream fileIn = new FileInputStream(filepath);
             ObjectInputStream objectIn = new ObjectInputStream(fileIn);
@@ -45,10 +46,6 @@ public class UserRepository {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public String getFILEPATH() {
-        return FILE_PATH;
     }
 
     public String[] getListOfFiles() {
@@ -105,6 +102,12 @@ public class UserRepository {
             e.printStackTrace();
         }
 
+        actualID = ID;
+    }
+
+    public boolean deleteUser(String str) {
+
+        return (new File(FILE_PATH + str)).delete();
     }
 }
 

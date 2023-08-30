@@ -6,7 +6,8 @@ public enum CommandList {
     READ("read"),
     READ_ALL("read all"),
     UPDATE("update"),
-    DELETE("delete");
+    DELETE("delete"),
+    DELETE_ALL("delete all");
 
     private String command;
 

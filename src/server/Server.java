@@ -24,18 +24,18 @@ public class Server implements Runnable {
     @Override
     public void run() {
         try {
+            while(!socket.isClosed()) {
+                HashMap<String, Object> receivedData;
 
-            HashMap<String, Object> receivedData;
+                receivedData = catcher();
+                System.out.printf("key --> %s  value --> %s\n", receivedData.keySet().iterator().next(), receivedData.get(receivedData.keySet().iterator().next()));
 
-            receivedData = catcher();
-            System.out.printf("key --> %s  value --> %s\n", receivedData.keySet().iterator().next(), receivedData.get(receivedData.keySet().iterator().next()));
+                receivedData = commandService.processComand(receivedData);
 
-            receivedData = commandService.processComand(receivedData);
+                sender(receivedData);
 
-            sender(receivedData);
-
-            System.out.printf("key --> %s  value --> %s\n", receivedData.keySet().iterator().next(), receivedData.get(receivedData.keySet().iterator().next()));
-
+                System.out.printf("key --> %s  value --> %s\n", receivedData.keySet().iterator().next(), receivedData.get(receivedData.keySet().iterator().next()));
+            }
         } catch (Exception e) {
             System.out.println("run Exception : " + e);
         }

@@ -50,12 +50,19 @@ public class CommandService {
                 boolean deleteResult = userService.deleteUser(deleteID);
                 data.put(cmd.getCommand(), deleteResult);
                 break;
-//            case UPDATE:
-//
-//
-//
-//            default:
 
+            case DELETE_ALL:
+
+                ArrayList <Integer> deletedID = userService.deleteAllUsers();
+                data.put(cmd.getCommand(), deletedID);
+                break;
+
+            case UPDATE:
+
+                String updateInfo = userService.updateUser(receivedData.get(cmd.getCommand()));
+                data.put(cmd.getCommand(), updateInfo);
+
+                break;
         }
 
         return data;
