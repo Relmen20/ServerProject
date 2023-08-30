@@ -1,11 +1,8 @@
 package repository;
 
-import entity.EntityUser;
+import model.EntityUser;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class UserRepository {
     private final static String ACTUAL_ID_FILE_PATH = "/home/andrew/IdeaProjects/NativeCSR/repo/src/data/Object_0.txt";
@@ -18,7 +15,8 @@ public class UserRepository {
 
     public void objectToFile(EntityUser obj) {
 
-        ++actualID;
+        actualID++;
+
         obj.setID(actualID);
 
         try {
@@ -53,20 +51,22 @@ public class UserRepository {
         return FILE_PATH;
     }
 
-    public String[] getListOfFiles(){
+    public String[] getListOfFiles() {
         return (new File(FILE_PATH)).list();
     }
 
     public int getActualIDFromFile() {
         int ID = 0;
         try {
-            FileInputStream fileIn = new FileInputStream(ACTUAL_ID_FILE_PATH);
-            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
-            Object obj = objectIn.readObject();
-            System.out.println(obj);
-//            objectIn.close();
+            File file = new File(ACTUAL_ID_FILE_PATH);
+            if(file.exists() && !file.isDirectory()) {
+                BufferedReader in = new BufferedReader(new FileReader(file));
+                ID = Integer.parseInt(String.valueOf(in.readLine()));
+            }else{
+                createFileActualID(ID);
+            }
         } catch (Exception e) {
-            createFileActualID(ID);
+            e.printStackTrace();
         }
 
         return ID;
@@ -78,10 +78,10 @@ public class UserRepository {
         FileWriter fr = null;
         try {
             fr = new FileWriter(file);
-            fr.write(actualID);
+            fr.write(String.valueOf(actualID));
         } catch (IOException e) {
             e.printStackTrace();
-        }finally{
+        } finally {
             //close resources
             try {
                 fr.close();
@@ -94,13 +94,26 @@ public class UserRepository {
 
     public void setActualIDToFile(int ID) {
         try {
-            PrintWriter writer = new PrintWriter(ACTUAL_ID_FILE_PATH);
-            writer.print("");
-            writer.print(ID);
-            writer.close();
+            File f = new File(ACTUAL_ID_FILE_PATH);
+            if(f.delete()){
+                createFileActualID(ID);
+            }else{
+                System.out.println("Failure");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 }
+
+
+
+
+
+
+
+
+
+

@@ -1,5 +1,5 @@
 import server.Server;
-import service.Commands;
+import service.CommandService;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -11,7 +11,7 @@ public class Main {
 
         ServerSocket srvSocket = null;
 
-        Commands commands = new Commands();
+        CommandService commandService = new CommandService();
 
         try {
             try {
@@ -24,7 +24,7 @@ public class Main {
 
                     Socket socket = srvSocket.accept();
 
-                    Server server = new Server(commands, socket);
+                    Server server = new Server(commandService, socket);
 
                     server.run();
                 }

@@ -1,9 +1,10 @@
-package service;
+package model;
 
 public enum CommandList {
 
     CREATE("create"),
     READ("read"),
+    READ_ALL("read all"),
     UPDATE("update"),
     DELETE("delete");
 
@@ -13,10 +14,10 @@ public enum CommandList {
         this.command = command;
     }
 
-    public static CommandList valueOfLabel(String command) {
-        for (CommandList e : values()) {
-            if (e.command.equals(command)) {
-                return e;
+    public static CommandList fromString(String text) {
+        for (CommandList b : CommandList.values()) {
+            if (b.command.equalsIgnoreCase(text)) {
+                return b;
             }
         }
         return null;
