@@ -15,18 +15,18 @@ public class UserRepository {
 
     public void createUser(EntityUser obj) {
 
-        if(obj.getID() == 0){
+        if (obj.getID() == 0) {
             actualID++;
             setActualIDToFile(actualID);
             obj.setID(actualID);
         }
+        String fullFileName = "Object_" + obj.getID() + ".ser";
 
-        try {
-            String fullFileName = "Object_" + obj.getID() + ".ser";
-            FileOutputStream fileOut = new FileOutputStream(new File(FILE_PATH, fullFileName));
-            ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
+        try(ObjectOutputStream objectOut = new ObjectOutputStream(
+                                           new FileOutputStream(
+                                           new File(FILE_PATH, fullFileName))))
+        {
             objectOut.writeObject(obj);
-            objectOut.close();
             System.out.printf("Object %s was saved successfully\n", obj.getName());
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -34,14 +34,9 @@ public class UserRepository {
     }
 
     public EntityUser getUser(String filepath) {
-        try {
-            FileInputStream fileIn = new FileInputStream(filepath);
-            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+        try (ObjectInputStream objectIn = new ObjectInputStream(new FileInputStream(filepath))){
 
-            EntityUser entityUser = (EntityUser) objectIn.readObject();
-
-            objectIn.close();
-            return entityUser;
+            return (EntityUser) objectIn.readObject();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -56,10 +51,10 @@ public class UserRepository {
         int ID = 0;
         try {
             File file = new File(ACTUAL_ID_FILE_PATH);
-            if(file.exists() && !file.isDirectory()) {
+            if (file.exists() && !file.isDirectory()) {
                 BufferedReader in = new BufferedReader(new FileReader(file));
                 ID = Integer.parseInt(String.valueOf(in.readLine()));
-            }else{
+            } else {
                 createFileActualID(ID);
             }
         } catch (Exception e) {
@@ -70,31 +65,19 @@ public class UserRepository {
     }
 
     public void createFileActualID(int actualID) {
-
-        File file = new File(ACTUAL_ID_FILE_PATH);
-        FileWriter fr = null;
-        try {
-            fr = new FileWriter(file);
+        try(FileWriter fr = new FileWriter(ACTUAL_ID_FILE_PATH)){
             fr.write(String.valueOf(actualID));
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            //close resources
-            try {
-                fr.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
-
     }
 
     public void setActualIDToFile(int ID) {
         try {
             File f = new File(ACTUAL_ID_FILE_PATH);
-            if(f.delete()){
+            if (f.delete()) {
                 createFileActualID(ID);
-            }else{
+            } else {
                 System.out.println("Failure");
             }
 
@@ -106,17 +89,6 @@ public class UserRepository {
     }
 
     public boolean deleteUser(String str) {
-
         return (new File(FILE_PATH + str)).delete();
     }
 }
-
-
-
-
-
-
-
-
-
-

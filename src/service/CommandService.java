@@ -19,56 +19,54 @@ public class CommandService {
 
         HashMap<String, Object> data = new HashMap<>();
 
-        CommandList cmd = CommandList.fromString(receivedData.keySet().iterator().next());
+        try{
+            CommandList cmd = CommandList.valueOf(receivedData.keySet().iterator().next());
 
-        switch (Objects.requireNonNull(cmd)) {
+            switch (Objects.requireNonNull(cmd)) {
 
-            case CREATE:
+                case CREATE:
 
-                String info = userService.createUser(receivedData.get(cmd.getCommand()));
-                data.put(cmd.getCommand(), info);
-                break;
+                    String info = userService.createUser(receivedData.get(cmd.name()));
+                    data.put(cmd.name(), info);
+                    break;
 
-            case READ:
+                case READ:
 
-                int ID = (int) receivedData.get(cmd.getCommand());
-                EntityUser user = userService.readUser(ID);
-                data.put(cmd.getCommand(), user != null ? user : "No such user");
+                    int ID = (int) receivedData.get(cmd.name());
+                    EntityUser user = userService.readUser(ID);
+                    data.put(cmd.name(), user != null ? user : "No such user");
 
-                break;
+                    break;
 
-            case READ_ALL:
+                case READ_ALL:
 
-                ArrayList <EntityUser> users = userService.readAllUsers();
-                data.put(cmd.getCommand(), users);
+                    ArrayList<EntityUser> users = userService.readAllUsers();
+                    data.put(cmd.name(), users);
 
-                break;
+                    break;
 
-            case DELETE:
+                case DELETE:
 
-                int deleteID = (int) receivedData.get(cmd.getCommand());
-                boolean deleteResult = userService.deleteUser(deleteID);
-                data.put(cmd.getCommand(), deleteResult);
-                break;
+                    int deleteID = (int) receivedData.get(cmd.name());
+                    boolean deleteResult = userService.deleteUser(deleteID);
+                    data.put(cmd.name(), deleteResult);
+                    break;
 
-            case DELETE_ALL:
+                case DELETE_ALL:
 
-                ArrayList <Integer> deletedID = userService.deleteAllUsers();
-                data.put(cmd.getCommand(), deletedID);
-                break;
+                    ArrayList<Integer> deletedID = userService.deleteAllUsers();
+                    data.put(cmd.name(), deletedID);
+                    break;
 
-            case UPDATE:
+                case UPDATE:
 
-                String updateInfo = userService.updateUser(receivedData.get(cmd.getCommand()));
-                data.put(cmd.getCommand(), updateInfo);
+                    String updateInfo = userService.updateUser(receivedData.get(cmd.name()));
+                    data.put(cmd.name(), updateInfo);
 
-                break;
-        }
+                    break;
+            }
+        }catch (Exception e){}
 
         return data;
-    }
-
-    private boolean isInteger(String str) {
-        return IsIntegerPattern.matcher(str).matches();
     }
 }

@@ -1,6 +1,6 @@
 package server;
 
-import model.SerializedEntity;
+import model.SerializedWrapper;
 import service.CommandService;
 
 import java.io.InputStream;
@@ -24,9 +24,9 @@ public class Server implements Runnable {
     @Override
     public void run() {
         try {
-            while(!socket.isClosed()) {
-                HashMap<String, Object> receivedData;
+            HashMap<String, Object> receivedData;
 
+            while(!socket.isClosed()){
                 receivedData = catcher();
                 System.out.printf("key --> %s  value --> %s\n", receivedData.keySet().iterator().next(), receivedData.get(receivedData.keySet().iterator().next()));
 
@@ -42,17 +42,13 @@ public class Server implements Runnable {
     }
 
     public void sender(HashMap<String, Object> sendHashMap) {
-        try {
-            SerializedEntity sendData;
+        try(ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
+            SerializedWrapper sendData;
 
-            OutputStream south = socket.getOutputStream();
-            ObjectOutputStream out = new ObjectOutputStream(south);
-
-            sendData = new SerializedEntity(sendHashMap);
+            sendData = new SerializedWrapper(sendHashMap);
             out.writeObject(sendData);
 
             out.flush();
-            out.close();
         } catch (Exception e) {
             System.out.println("sender Exception : " + e);
         }
@@ -63,17 +59,15 @@ public class Server implements Runnable {
         HashMap<String, Object> sendHashMap = null;
 
         try {
-            InputStream sin = socket.getInputStream();
-            ObjectInputStream in = new ObjectInputStream(sin);
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            SerializedWrapper receivedSerializedData;
+            receivedSerializedData = (SerializedWrapper) in.readObject();
+            sendHashMap = receivedSerializedData.getMapWrapper();
 
-            SerializedEntity receivedSerializedData;
-            receivedSerializedData = (SerializedEntity) in.readObject();
-            sendHashMap = receivedSerializedData.sendMsg;
         } catch (Exception e) {
             System.out.println("catcher Exception : " + e);
         }
 
         return sendHashMap;
     }
-
 }

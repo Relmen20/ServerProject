@@ -26,81 +26,53 @@ public class UserService {
     }
 
     public EntityUser readUser(int ID) {
-        String[] ls = userRepository.getListOfFiles();
-
+        String[] listOfFileNames = userRepository.getListOfFiles();
         EntityUser entityUser = null;
 
-        if (userRepository.getActualIDFromFile() >= ID) {
-
-            try {
-                for (String s : ls) {
-                    Pattern pattern = Pattern.compile("\\d+");
-                    Matcher matcher = pattern.matcher(s);
-                    if (matcher.find()) {
-                        String extractedNumberStr = matcher.group();
-                        int extractedNumber = Integer.parseInt(extractedNumberStr);
-                        if (extractedNumber == ID) {
-                            entityUser = userRepository.getUser(UserRepository.FILE_PATH + s);
-                        }
-                    } else {
-                        System.out.println("No number found in the input string.");
-                    }
-
+        if (userRepository.getActualIDFromFile() >= ID && listOfFileNames != null) {
+            for (String fileName : listOfFileNames) {
+                if (ID == Integer.parseInt(fileName.substring(7, fileName.length() - 4))) {
+                    entityUser = userRepository.getUser(UserRepository.FILE_PATH + fileName);
                 }
-
-            } catch (Exception e) {
             }
         }
-
         return entityUser;
     }
 
     public ArrayList<EntityUser> readAllUsers() {
-        ArrayList<EntityUser> users = new ArrayList<>();
-        EntityUser entityUser;
+        ArrayList<EntityUser> allUsers = new ArrayList<>();
 
-        String[] ls = userRepository.getListOfFiles();
-        for (String fileName : ls) {
-            int length = fileName.length();
-            String lastPart = fileName.substring(length - 4, length);
-            if (lastPart.equals(".ser")) {
-                entityUser = userRepository.getUser(UserRepository.FILE_PATH + fileName);
-                users.add(entityUser);
+        String[] listOfFileNames = userRepository.getListOfFiles();
+        for (String fileName : listOfFileNames) {
+            if (fileName.endsWith(".ser")) {
+                allUsers.add(userRepository.getUser(UserRepository.FILE_PATH + fileName));
             }
         }
-        return users;
+        return allUsers;
     }
 
-    public boolean deleteUser(int deleteID) {
+    public boolean deleteUser(int idToDelete) {
+        String[] listOfFileNames = userRepository.getListOfFiles();
 
-        String[] ls = userRepository.getListOfFiles();
-
-        if ((userRepository.getActualIDFromFile() >= deleteID) && (ls != null)) {
-
-            for (String str : ls) {
-                int ID = Integer.parseInt(str.substring(7, str.length() - 4));
-                if (ID == deleteID) {
-                    return userRepository.deleteUser(str);
+        if (userRepository.getActualIDFromFile() >= idToDelete && listOfFileNames != null) {
+            for (String fileName : listOfFileNames) {
+                if (idToDelete == Integer.parseInt(fileName.substring(7, fileName.length() - 4))) {
+                    return userRepository.deleteUser(fileName);
                 }
             }
-
         }
         return false;
     }
 
     public ArrayList<Integer> deleteAllUsers() {
+        ArrayList<Integer> arrayOfDeletedID = new ArrayList<>();
+        String[] listOfFileNames = userRepository.getListOfFiles();
 
-        ArrayList<Integer> deletedID = new ArrayList<>();
-
-        String[] ls = userRepository.getListOfFiles();
-
-        if (ls != null) {
-            for (String str : ls) {
-                String lastPart = str.substring(str.length() - 4, str.length());
-                if (lastPart.equals(".ser")) {
-                    if (userRepository.deleteUser(str)) {
-                        int ID = Integer.parseInt(str.substring(7, str.length() - 4));
-                        deletedID.add(ID);
+        if (listOfFileNames != null) {
+            for (String fileName : listOfFileNames) {
+                if (fileName.endsWith(".ser")) {
+                    if (userRepository.deleteUser(fileName)) {
+                        arrayOfDeletedID.add(Integer.parseInt(fileName.substring(7, fileName.length() - 4)));
                     }
                 }
             }
@@ -108,7 +80,7 @@ public class UserService {
             return null;
         }
         userRepository.setActualIDToFile(0);
-        return deletedID;
+        return arrayOfDeletedID;
     }
 
     public String updateUser(Object object) {
@@ -123,7 +95,5 @@ public class UserService {
         } catch (Exception e) {
             return "Failure";
         }
-
-
     }
 }
