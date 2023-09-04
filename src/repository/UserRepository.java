@@ -2,7 +2,14 @@ package repository;
 
 import model.EntityUser;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.FileInputStream;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
 
 public class UserRepository {
     private final static String ACTUAL_ID_FILE_PATH = "/home/andrew/IdeaProjects/NativeCSR/repo/src/data/Object_0.txt";
@@ -28,17 +35,16 @@ public class UserRepository {
         {
             objectOut.writeObject(obj);
             System.out.printf("Object %s was saved successfully\n", obj.getName());
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Exception: " + e);
         }
     }
 
     public EntityUser getUser(String filepath) {
         try (ObjectInputStream objectIn = new ObjectInputStream(new FileInputStream(filepath))){
-
             return (EntityUser) objectIn.readObject();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Exception: " + e);
             return null;
         }
     }
@@ -58,7 +64,7 @@ public class UserRepository {
                 createFileActualID(ID);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Exception: " + e);
         }
 
         return ID;
@@ -67,8 +73,8 @@ public class UserRepository {
     public void createFileActualID(int actualID) {
         try(FileWriter fr = new FileWriter(ACTUAL_ID_FILE_PATH)){
             fr.write(String.valueOf(actualID));
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Exception: " + e);
         }
     }
 
@@ -82,7 +88,7 @@ public class UserRepository {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Exception: " + e);
         }
 
         actualID = ID;
