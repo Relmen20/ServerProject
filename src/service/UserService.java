@@ -4,8 +4,6 @@ import model.EntityUser;
 import repository.UserRepository;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class UserService {
 
@@ -32,7 +30,7 @@ public class UserService {
         if (userRepository.getActualIDFromFile() >= ID && listOfFileNames != null) {
             for (String fileName : listOfFileNames) {
                 if (ID == Integer.parseInt(fileName.substring(7, fileName.length() - 4))) {
-                    entityUser = userRepository.getUser(UserRepository.FILE_PATH + fileName);
+                    entityUser = userRepository.getUser(UserRepository.DIRECTORY_PATH + fileName);
                 }
             }
         }
@@ -45,7 +43,7 @@ public class UserService {
         String[] listOfFileNames = userRepository.getListOfFiles();
         for (String fileName : listOfFileNames) {
             if (fileName.endsWith(".ser")) {
-                allUsers.add(userRepository.getUser(UserRepository.FILE_PATH + fileName));
+                allUsers.add(userRepository.getUser(UserRepository.DIRECTORY_PATH + fileName));
             }
         }
         return allUsers;

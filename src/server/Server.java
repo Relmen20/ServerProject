@@ -1,6 +1,5 @@
 package server;
 
-import model.SerializedWrapper;
 import service.CommandService;
 
 import java.io.ObjectInputStream;
@@ -19,14 +18,16 @@ public class Server implements Runnable {
         this.commandService = commandService;
     }
 
-    @Override
     public void run() {
         try {
+
             HashMap<String, Object> receivedData;
 
-            while(!socket.isClosed()){
+            while (!socket.isClosed()) {
                 receivedData = catchRespond();
-                System.out.printf("key --> %s  value --> %s\n", receivedData.keySet().iterator().next(), receivedData.get(receivedData.keySet().iterator().next()));
+                System.out.printf("key --> %s  value --> %s\n",
+                        receivedData.keySet().iterator().next(),
+                        receivedData.get(receivedData.keySet().iterator().next()));
 
                 receivedData = commandService.processComand(receivedData);
 
@@ -38,14 +39,14 @@ public class Server implements Runnable {
             }
         } catch (Exception e) {
             System.out.println("run Exception : " + e);
+            e.printStackTrace();
         }
     }
 
     public void sendRequest(HashMap<String, Object> sendHashMap) {
-        try(ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
-
-            out.writeObject(new SerializedWrapper(sendHashMap));
-            out.flush();
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())) {
+            objectOutputStream.writeObject(sendHashMap);
+//            objectOutputStream.flush();
         } catch (Exception e) {
             System.out.println("sender Exception : " + e);
         }
@@ -53,13 +54,10 @@ public class Server implements Runnable {
 
     public HashMap<String, Object> catchRespond() {
 
-        HashMap<String, Object> sendHashMap = null;
+        HashMap<String, Object> sendHashMap = new HashMap<>();
 
-        try {
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-            SerializedWrapper receivedSerializedData = (SerializedWrapper) in.readObject();
-            sendHashMap = receivedSerializedData.getMapWrapper();
-
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream())) {
+            sendHashMap = (HashMap<String, Object>) objectInputStream.readObject();
         } catch (Exception e) {
             System.out.println("catcher Exception : " + e);
         }
