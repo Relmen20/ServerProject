@@ -80,7 +80,6 @@ public class UserService {
     }
 
     public String updateUser(Object object) {
-
         try {
             EntityUser user = (EntityUser) object;
             if(deleteUser(user.getID())) {
