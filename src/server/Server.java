@@ -2,6 +2,8 @@ package server;
 
 import service.CommandService;
 
+import java.io.EOFException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -20,11 +22,9 @@ public class Server implements Runnable {
 
     public void run() {
         try {
-
             HashMap<String, Object> receivedData;
 
-            while (!socket.isClosed()) {
-                receivedData = catchRespond();
+            while (!socket.isClosed() && (receivedData = catchRespond()) != null) {
                 System.out.printf("key --> %s  value --> %s\n",
                         receivedData.keySet().iterator().next(),
                         receivedData.get(receivedData.keySet().iterator().next()));
@@ -37,27 +37,32 @@ public class Server implements Runnable {
                         receivedData.keySet().iterator().next(),
                         receivedData.get(receivedData.keySet().iterator().next()));
             }
+
         } catch (Exception e) {
             System.out.println("run Exception : " + e);
-            e.printStackTrace();
         }
     }
 
     public void sendRequest(HashMap<String, Object> sendHashMap) {
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())) {
+        try {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             objectOutputStream.writeObject(sendHashMap);
-//            objectOutputStream.flush();
+            objectOutputStream.flush();
         } catch (Exception e) {
             System.out.println("sender Exception : " + e);
         }
     }
 
+
+    @SuppressWarnings("unchecked")
     public HashMap<String, Object> catchRespond() {
-
         HashMap<String, Object> sendHashMap = new HashMap<>();
-
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream())) {
+        try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
             sendHashMap = (HashMap<String, Object>) objectInputStream.readObject();
+        } catch (EOFException e) {
+            return null;
+            // end of data in InputStream
         } catch (Exception e) {
             System.out.println("catcher Exception : " + e);
         }

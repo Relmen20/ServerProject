@@ -5,8 +5,9 @@ import model.EntityUser;
 import java.io.*;
 
 public class UserRepository {
+
     private final static String ACTUAL_ID_FILE_NAME = "Object_0.txt";
-    public static final String DIRECTORY_PATH = "/home/andrew/IdeaProjects/NativeCSR/repo/src/data/";
+    public static final String DIRECTORY_PATH = System.getProperty("user.dir") + "/src/data/";
     private int actualID;
 
     public UserRepository(){
@@ -20,7 +21,7 @@ public class UserRepository {
             setActualIDToFile(actualID);
             obj.setID(actualID);
         }
-        String fullFileName = "Object_" + obj.getID() + ".ser";
+        String fullFileName = DIRECTORY_PATH + "Object_" + obj.getID() + ".ser";
 
         try(ObjectOutputStream objectOut = new ObjectOutputStream(
                                            new FileOutputStream(fullFileName)))
@@ -47,7 +48,7 @@ public class UserRepository {
 
     public int getActualIDFromFile() {
         int ID = 0;
-        try(FileInputStream fileInputStream = new FileInputStream(DIRECTORY_PATH+ACTUAL_ID_FILE_NAME)) {
+        try(FileInputStream fileInputStream = new FileInputStream(DIRECTORY_PATH + "/" + ACTUAL_ID_FILE_NAME)) {
             ID = Integer.parseInt(String.valueOf(fileInputStream.read()));
 
         } catch (FileNotFoundException e) {
@@ -60,15 +61,19 @@ public class UserRepository {
     }
 
     public void setActualIDToFile(int ID) {
-        try(FileOutputStream fileOutputStream = new FileOutputStream(DIRECTORY_PATH+ACTUAL_ID_FILE_NAME, false)) {
+        File file = new File(DIRECTORY_PATH);
+        file.mkdir();
+        try(FileOutputStream fileOutputStream = new FileOutputStream(DIRECTORY_PATH + "/"  + ACTUAL_ID_FILE_NAME)) {
             fileOutputStream.write(ID);
-        } catch (Exception e) {
-            System.out.println("Exception: " + e);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         actualID = ID;
     }
 
     public boolean deleteUser(String str) {
-        return (new File(DIRECTORY_PATH + str)).delete();
+        return (new File(DIRECTORY_PATH + "/"  + str)).delete();
     }
 }
