@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
 
         CommandService commandService = new CommandService();
-        try(ServerSocket srvSocket = new ServerSocket(6666, 1, InetAddress.getByName("localhost"))){
+        try(ServerSocket srvSocket = new ServerSocket(Integer.parseInt(args[0]), 1, InetAddress.getByName("localhost"))){
             System.out.println("Server started\n\n");
 
             while (true) {

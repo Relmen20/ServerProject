@@ -6,9 +6,18 @@ import java.io.*;
 
 public class UserRepository {
 
+    private final static String ENVIRONMENT = "JAVA_REPOSITORY_PATH";
     private final static String ACTUAL_ID_FILE_NAME = "Object_0.txt";
-    public static final String DIRECTORY_PATH = System.getProperty("user.dir") + "/src/data/";
+    public static final String DIRECTORY_PATH;
     private int actualID;
+    
+    static {
+        if(System.getenv(ENVIRONMENT) != null){
+            DIRECTORY_PATH = System.getenv(ENVIRONMENT);
+        }else{
+            DIRECTORY_PATH = System.getProperty("user.dir") + "/data/";
+        }
+    }
 
     public UserRepository(){
         this.actualID = getActualIDFromFile();
@@ -21,7 +30,7 @@ public class UserRepository {
             setActualIDToFile(actualID);
             obj.setID(actualID);
         }
-        String fullFileName = DIRECTORY_PATH + "Object_" + obj.getID() + ".ser";
+        String fullFileName = DIRECTORY_PATH + "/" + "Object_" + obj.getID() + ".ser";
 
         try(ObjectOutputStream objectOut = new ObjectOutputStream(
                                            new FileOutputStream(fullFileName)))
