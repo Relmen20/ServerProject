@@ -1,12 +1,11 @@
 package server;
 
-import model.SerializedWrapper;
 import service.CommandService;
 
+import java.io.EOFException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 
@@ -21,49 +20,49 @@ public class Server implements Runnable {
         this.commandService = commandService;
     }
 
-    @Override
     public void run() {
         try {
             HashMap<String, Object> receivedData;
 
-            while(!socket.isClosed()){
-                receivedData = catcher();
-                System.out.printf("key --> %s  value --> %s\n", receivedData.keySet().iterator().next(), receivedData.get(receivedData.keySet().iterator().next()));
+            while (!socket.isClosed() && (receivedData = catchRespond()) != null) {
+                System.out.printf("key --> %s  value --> %s\n",
+                        receivedData.keySet().iterator().next(),
+                        receivedData.get(receivedData.keySet().iterator().next()));
 
                 receivedData = commandService.processComand(receivedData);
 
-                sender(receivedData);
+                sendRequest(receivedData);
 
-                System.out.printf("key --> %s  value --> %s\n", receivedData.keySet().iterator().next(), receivedData.get(receivedData.keySet().iterator().next()));
+                System.out.printf("key --> %s  value --> %s\n",
+                        receivedData.keySet().iterator().next(),
+                        receivedData.get(receivedData.keySet().iterator().next()));
             }
+
         } catch (Exception e) {
             System.out.println("run Exception : " + e);
         }
     }
 
-    public void sender(HashMap<String, Object> sendHashMap) {
-        try(ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
-            SerializedWrapper sendData;
-
-            sendData = new SerializedWrapper(sendHashMap);
-            out.writeObject(sendData);
-
-            out.flush();
+    public void sendRequest(HashMap<String, Object> sendHashMap) {
+        try {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            objectOutputStream.writeObject(sendHashMap);
+            objectOutputStream.flush();
         } catch (Exception e) {
             System.out.println("sender Exception : " + e);
         }
     }
 
-    public HashMap<String, Object> catcher() {
 
-        HashMap<String, Object> sendHashMap = null;
-
+    @SuppressWarnings("unchecked")
+    public HashMap<String, Object> catchRespond() {
+        HashMap<String, Object> sendHashMap = new HashMap<>();
         try {
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-            SerializedWrapper receivedSerializedData;
-            receivedSerializedData = (SerializedWrapper) in.readObject();
-            sendHashMap = receivedSerializedData.getMapWrapper();
-
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+            sendHashMap = (HashMap<String, Object>) objectInputStream.readObject();
+        } catch (EOFException e) {
+            return null;
+            // end of data in InputStream
         } catch (Exception e) {
             System.out.println("catcher Exception : " + e);
         }

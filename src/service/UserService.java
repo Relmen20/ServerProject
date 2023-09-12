@@ -4,8 +4,6 @@ import model.EntityUser;
 import repository.UserRepository;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class UserService {
 
@@ -32,7 +30,7 @@ public class UserService {
         if (userRepository.getActualIDFromFile() >= ID && listOfFileNames != null) {
             for (String fileName : listOfFileNames) {
                 if (ID == Integer.parseInt(fileName.substring(7, fileName.length() - 4))) {
-                    entityUser = userRepository.getUser(UserRepository.FILE_PATH + fileName);
+                    entityUser = userRepository.getUser(UserRepository.DIRECTORY_PATH + "/"  + fileName);
                 }
             }
         }
@@ -41,11 +39,11 @@ public class UserService {
 
     public ArrayList<EntityUser> readAllUsers() {
         ArrayList<EntityUser> allUsers = new ArrayList<>();
-
         String[] listOfFileNames = userRepository.getListOfFiles();
+
         for (String fileName : listOfFileNames) {
             if (fileName.endsWith(".ser")) {
-                allUsers.add(userRepository.getUser(UserRepository.FILE_PATH + fileName));
+                allUsers.add(userRepository.getUser(UserRepository.DIRECTORY_PATH + "/"  + fileName));
             }
         }
         return allUsers;
@@ -70,10 +68,8 @@ public class UserService {
 
         if (listOfFileNames != null) {
             for (String fileName : listOfFileNames) {
-                if (fileName.endsWith(".ser")) {
-                    if (userRepository.deleteUser(fileName)) {
-                        arrayOfDeletedID.add(Integer.parseInt(fileName.substring(7, fileName.length() - 4)));
-                    }
+                if (fileName.endsWith(".ser") && userRepository.deleteUser(fileName)) {
+                    arrayOfDeletedID.add(Integer.parseInt(fileName.substring(7, fileName.length() - 4)));
                 }
             }
         } else {
@@ -84,7 +80,6 @@ public class UserService {
     }
 
     public String updateUser(Object object) {
-
         try {
             EntityUser user = (EntityUser) object;
             if(deleteUser(user.getID())) {

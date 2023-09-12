@@ -1,44 +1,29 @@
 import server.Server;
 import service.CommandService;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+
 public class Main {
     public static void main(String[] args) {
 
-        ServerSocket srvSocket = null;
-
         CommandService commandService = new CommandService();
+        try(ServerSocket srvSocket = new ServerSocket(Integer.parseInt(args[0]), 1, InetAddress.getByName("localhost"))){
+            System.out.println("Server started\n\n");
 
-        try {
-            try {
-
-                srvSocket = new ServerSocket(6666, 1, InetAddress.getByName("localhost"));
-
-                System.out.println("Server started\n\n");
-
-                while (true) {
-
+            while (true) {
+                try{
                     Socket socket = srvSocket.accept();
-
                     Server server = new Server(commandService, socket);
-
                     server.run();
+                }catch (Exception e){
+                    System.out.println("socket Exception " + e.getMessage());
                 }
-
-            } catch (Exception e) {
-                System.out.println("main Exception : " + e);
             }
-        } finally {
-            try {
-                if (srvSocket != null)
-                    srvSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } catch (Exception e) {
+            System.out.println("srvSocket Exception " + e.getMessage());
         }
         System.exit(0);
     }
